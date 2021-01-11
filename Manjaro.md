@@ -522,12 +522,90 @@ vim transparent.ds
 xprop | grep 'CLASS' #然后鼠标变成十字，点击窗口
 #配置文件内容 
 #窗口名称：systemsettings、yakuake、dolphin、netease-cloud-music、konsole
-(
-  if (contains (window_class) "窗口名称")
+  if (contains (window_class) "dolphin")
     (begin
         (spawn_async (str "xprop -id " (window_xid) " -f _KDE_NET_WM_BLUR_BEHIND_REGION 32c -set _KDE_NET_WM_BLUR_BEHIND_REGION 0 "))
-        (spawn_async (str "xprop -id " (window_xid) " -f _NET_WM_WINDOW_OPACITY 32c -set _NET_WM_WINDOW_OPACITY 0xd6ffffff"))
+        (spawn_async (str "xprop -id " (window_xid) " -f _NET_WM_WINDOW_OPACITY 32c -set _NET_WM_WINDOW_OPACITY 0xccffffff"))
     )
-）
+#创建快捷方式并添加开机启动
+```
+
+### Docker
+
+#### 安装
+
+```bash
+# Pacman 安装 Docker
+sudo pacman -S docker
+# 启动docker服务
+sudo systemctl start docker 
+# 查看docker服务的状态
+sudo systemctl status docker
+# 设置docker开机启动服务
+sudo systemctl enable docker
+```
+
+#### 免sudo操作
+
+```bash
+# 如果还没有 docker group 就添加一个
+sudo groupadd docker
+# 将自己的登录名(${USER} )加入该 group 内。然后退出并重新登录就生效啦
+sudo gpasswd -a ${USER} docker
+# 重启 docker 服务
+sudo systemctl restart docker
+# 切换当前会话到新 group 或者重启 X 会话
+# 注意，这一步是必须的，否则因为 groups 命令获取到的是缓存的组信息，刚添加的组信息未能生效，所以 docker images 执行时同样有错。
+newgrp - docker
+OR
+pkill X
+```
+
+#### 镜像容器自定义位置
+
+```bash
+vi /usr/lib/systemd/system/docker.service  
+#设置参数，追加--graph /new-path/docker
+ExecStart=/usr/bin/dockerd --graph /new-path/docker 
+#重启守护进程
+systemctl daemon-reload 
+#查看结果
+docker info
+```
+
+
+
+#### 镜像加速
+
+```bash
+sudo tee /etc/docker/daemon.json <<-'EOF'
+{
+  "registry-mirrors": ["https://yeopv49g.mirror.aliyuncs.com"]
+}
+EOF
+```
+
+#### MySQL安装
+
+```bash
+docker pull mysql:8.0.20
+#命令换行前加空格 -v 路径映射
+docker run -d --name mysq -p 3306:3306 \
+#设置登录密码
+-e MYSQL_ROOT_PASSWORD=123456 \
+-v /home/anyu/Sources/DockerData/mysql/data:/var/lib/mysql \
+-v /home/anyu/Sources/DockerData/mysql/log:/var/log/mysql \
+-v /home/anyu/Sources/DockerData/mysql/config:/etc/mysql \
+#指定容器
+mysql:8.0.20
+#进入容器登录MySQLdoc
+docker exec -it mysql 
+mysql -uroot -p123456
+#修改远程登录
+use mysql;
+select host,user from user;
+ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY '123456';
+flush privileges;
+
 ```
 
