@@ -1,6 +1,6 @@
 # Manjaro
 
-####  初始设置
+###  初始设置
 
 ```bash
 #将系统时间设置为硬件时间
@@ -491,6 +491,53 @@ pacman -Sy linux
 pacman -Syy archlinux-keyring
 ```
 
+#### 系统亮度调节
+
+```bash
+#sys/class/backlight/intel_backlight 亮度配置
+sudo vim max_brightness  #最大亮度120000
+#修改亮度
+echo xxxxx > brightness
+#脚本
+#!/usr/bin/bash
+sudo su<<EOF
+    echo $1 > /sys/class/backlight/intel_backlight/brightness
+EOF
+```
+
+```bash
+#!/bin/bash
+doChangeBrightness(){
+	sudo su<<EOF
+    echo $1 > /sys/class/backlight/intel_backlight/brightness
+EOF
+}
+
+bright=$1
+#输入参数为空，设为50%
+if [ -z "$bright" ]
+	then 
+	bright=50
+	echo "input args is nil, system bright will be set ${bright}%"
+fi
+#输入不能小于30，大于100
+if [ "$bright" -lt "30" ]
+then 
+	bright=30
+	echo "input args too small,system bright will be set 30%"
+elif [ "$bright" -gt "100" ]
+then
+	bright=100
+	echo "input args too max,system bright will be set 100%"
+else 
+	echo "system bright will be set ${bright}%"
+fi
+#更改系统亮度
+doChangeBrightness $((bright * 1200))
+```
+
+
+
 ### 美化
 
 ####  终端zsh
@@ -504,6 +551,15 @@ chsh -s /bin/zsh
 sudo vim ~/.zshrc
 ZSH_THEME="3den"
 ```
+
+#### 用户头像设置
+
+```bash
+#将头像放入该目录
+/usr/share/pixmaps/faces
+```
+
+
 
 #### Dock
 
