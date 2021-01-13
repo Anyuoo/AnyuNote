@@ -536,6 +536,41 @@ fi
 doChangeBrightness $((bright * 1200))
 ```
 
+#### Linux 环境变量文件执行顺序
+
+```bash
+==> /etc/profile
+==> ~/.bash_profile | ~/.bash_login | ~/.profile
+==> ~/.bashrc
+==> /etc/bashrc
+#登录shell执行脚本的顺序
+#登录shell执行/etc/profile
+#/etc/profile执行/etc/profile.d目录下的脚本
+#然后执行当前用户的~/.bash_profile
+#~/.bash_profile执行当前用户的~/.bashrc
+#~/.bashrc执行/etc/bashrc
+
+#非登录shell执行脚本的顺序
+#非登录shell首先执行~/.bashrc
+#然后~/.bashrc执行/etc/bashrc
+#/etc/bashrc 调用/etc/profile.d目录下的脚本
+```
+
+#### 解决idea中无法中文输入
+
+```bash
+#方法一：
+#在idea安装目录bin目录下找到idea.sh文件追加
+export XMODIFIERS=@im=fcitx
+export QT_IM_MODULE=fcitx
+#重启IDEA
+
+#方法二
+#点击菜单 "Help | Edit Custom VM options..."
+#添加 -Drecreate.x11.input.method=true 到最后一行
+#重启IDEA
+```
+
 
 
 ### 美化
@@ -644,24 +679,69 @@ EOF
 #### MySQL安装
 
 ```bash
-docker pull mysql:8.0.20
+docker pull mysql:last
 #命令换行前加空格 -v 路径映射
-docker run -d --name mysq -p 3306:3306 \
-#设置登录密码
+docker run -d --name mysql -p 3306:3306 \
+#设置登录密码,只支持5.7一下版本，8以上需要my.cnf文件
 -e MYSQL_ROOT_PASSWORD=123456 \
--v /home/anyu/Sources/DockerData/mysql/data:/var/lib/mysql \
--v /home/anyu/Sources/DockerData/mysql/log:/var/log/mysql \
--v /home/anyu/Sources/DockerData/mysql/config:/etc/mysql \
+-v /home/anyu/../mysql/data:/var/lib/mysql \
+-v /home/anyu/S../mysql/log:/var/log/mysql \
+-v /home/anyu/../mysql/config:/etc/mysql \
 #指定容器
 mysql:8.0.20
 #进入容器登录MySQLdoc
-docker exec -it mysql 
+docker exec -it mysql /bin/bash
 mysql -uroot -p123456
+
 #修改远程登录
 use mysql;
 select host,user from user;
 ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY '123456';
 flush privileges;
 
+```
+
+```bash
+docker run -d --name mysql -p 3306:3306 \
+#设置登录密码,只支持5.7一下版本，8以上需要my.cnf文件
+-e MYSQL_ROOT_PASSWORD=123456 \
+-v /home/anyu/../mysql/config/my.cnf:/etc/mysql/my.cnf \
+-v /home/anyu/../mysql/data:/var/lib/mysql \
+mysql:8.0.20
+############################################################################
+#可选参数
+--restart=always                                            -> 开机启动容器,容器异常自动重启
+-d                                                          -> 以守护进程的方式启动容器
+-v /home/**/mysql/conf.d/my.cnf:/etc/mysql/my.cnf          -> 映射配置文件
+-v /home/**/mysql/logs:/logs                               -> 映射日志
+-v /home/**/mysql/data/mysql:/var/lib/mysql                -> 映射数据
+-p 3306:3306                                                -> 绑定宿主机端口
+--name mysql                                                -> 指定容器名称
+-e MYSQL_ROOT_PASSWORD=123456   
+##############################################################################
+#my.cnf文件
+[mysqld]
+pid-file        = /var/run/mysqld/mysqld.pid
+socket          = /var/run/mysqld/mysqld.sock
+datadir         = /var/lib/mysql
+secure-file-priv= NULL
+# Disabling symbolic-links is recommended to prevent assorted security risks
+symbolic-links=0
+ 
+# Custom config should go here
+!includedir /etc/mysql/conf.d/
+```
+
+
+
+### Linux 其他操作
+
+#### 查看和关掉某个端口
+
+```bash
+#Linux下端口被占用（例如端口3000），关掉端口占用的进程的方法：
+netstat -tln | grep 3000
+sudo lsof -i:3000
+sudo kill -9 进程id
 ```
 
