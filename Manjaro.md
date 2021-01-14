@@ -571,6 +571,13 @@ export QT_IM_MODULE=fcitx
 #重启IDEA
 ```
 
+#### 关掉蜂鸣声
+
+```bash
+ rmmod pcspkr
+ echo "blacklist pcspkr" | sudo tee /etc/modprobe.d/nobeep.conf
+```
+
 
 
 ### 美化
