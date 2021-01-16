@@ -560,7 +560,7 @@ doChangeBrightness $((bright * 1200))
 
 ```bash
 #方法一：
-#在idea安装目录bin目录下找到idea.sh文件追加
+#在idea安装目录bin目录下找到idea.sh文件，前面加上
 export XMODIFIERS=@im=fcitx
 export QT_IM_MODULE=fcitx
 #重启IDEA
@@ -752,3 +752,4 @@ sudo lsof -i:3000
 sudo kill -9 进程id
 ```
 
+### 安装显卡
