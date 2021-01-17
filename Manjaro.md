@@ -591,8 +591,148 @@ sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/i
 chsh -s /bin/zsh
 # 安装3den主题
 sudo vim ~/.zshrc
+#官方主题：https://github.com/ohmyzsh/ohmyzsh/wiki/External-themes
 ZSH_THEME="3den"
+#查看已有的shell
+cat /etc/shells
+#当前shell
+echo $SHELL
 ```
+
+```bash
+#vim ~/.zshrc 配置
+# Path to your oh-my-zsh installation.
+export ZSH="$HOME/.oh-my-zsh"
+source $ZSH/oh-my-zsh.sh
+
+#color{{{
+autoload colors
+colors
+
+for color in RED GREEN YELLOW BLUE MAGENTA CYAN WHITE; do
+eval _$color='%{$terminfo[bold]$fg[${(L)color}]%}'
+eval $color='%{$fg[${(L)color}]%}'
+(( count = $count + 1 ))
+done
+FINISH="%{$terminfo[sgr0]%}"
+#}}}r
+# 补全{{{
+#彩色补全菜单
+eval $(dircolors -b)
+export ZLSCOLORS="${LS_COLORS}"
+zmodload zsh/complist
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#)*=0=01;31'
+
+#修正大小写
+zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z}={A-Za-z}'
+#错误校正
+zstyle ':completion:*' completer _complete _match _approximate
+zstyle ':completion:*:match:*' original only
+zstyle ':completion:*:approximate:*' max-errors 1 numeric
+
+#kill 命令补全
+compdef pkill=kill
+compdef pkill=killall
+zstyle ':completion:*:*:kill:*' menu yes select
+zstyle ':completion:*:*:*:*:processes' force-list always
+zstyle ':completion:*:processes' command 'ps -au$USER'
+
+#补全类型提示分组
+zstyle ':completion:*:matches' group 'yes'
+zstyle ':completion:*' group-name ''
+zstyle ':completion:*:options' description 'yes'
+zstyle ':completion:*:options' auto-description '%d'
+zstyle ':completion:*:descriptions' format $'\e[01;33m -- %d --\e[0m'
+zstyle ':completion:*:messages' format $'\e[01;35m -- %d --\e[0m'
+zstyle ':completion:*:warnings' format $'\e[01;31m -- No Matches Found --\e[0m'
+zstyle ':completion:*:corrections' format $'\e[01;32m -- %d (errors: %e) --\e[0m'
+
+# cd ~ 补全顺序
+zstyle ':completion:*:-tilde-:*' group-order 'named-directories' 'path-directories' 'users' 'expand'
+#}}}
+
+
+##行编辑高亮模式 {{{
+# Ctrl+@ 设置标记，标记和光标点之间为 region
+zle_highlight=(region:bg=magenta #选中区域
+special:bold      #特殊字符
+isearch:underline)#搜索时使用的关键字
+#}}}
+
+##空行(光标在行首)补全 "cd " {{{
+user-complete(){
+case $BUFFER in
+"" )                       # 空行填入 "cd "
+BUFFER="cd "
+zle end-of-line
+zle expand-or-complete
+;;
+"cd --" )                  # "cd --" 替换为 "cd +"
+BUFFER="cd +"
+zle end-of-line
+zle expand-or-complete
+;;
+"cd +-" )                  # "cd +-" 替换为 "cd -"
+BUFFER="cd -"
+zle end-of-line
+zle expand-or-complete
+;;
+* )
+zle expand-or-complete
+;;
+esac
+}
+zle -N user-complete
+bindkey "\t" user-complete
+#}}}
+
+
+#漂亮又实用的命令高亮界面
+setopt extended_glob
+TOKENS_FOLLOWED_BY_COMMANDS=('|' '||' ';' '&' '&&' 'sudo' 'do' 'time' 'strace')
+
+recolor-cmd() {
+region_highlight=()
+colorize=true
+start_pos=0
+for arg in ${(z)BUFFER}; do
+((start_pos+=${#BUFFER[$start_pos+1,-1]}-${#${BUFFER[$start_pos+1,-1]## #}}))
+((end_pos=$start_pos+${#arg}))
+if $colorize; then
+colorize=false
+res=$(LC_ALL=C builtin type $arg 2>/dev/null)
+case $res in
+*'reserved word'*)   style="fg=magenta,bold";;
+*'alias for'*)       style="fg=cyan,bold";;
+*'shell builtin'*)   style="fg=yellow,bold";;
+*'shell function'*)  style='fg=green,bold';;
+*"$arg is"*)
+[[ $arg = 'sudo' ]] && style="fg=red,bold" || style="fg=blue,bold";;
+*)                   style='none,bold';;
+esac
+region_highlight+=("$start_pos $end_pos $style")
+fi
+[[ ${${TOKENS_FOLLOWED_BY_COMMANDS[(r)${arg//|/\|}]}:+yes} = 'yes' ]] && colorize=true
+start_pos=$end_pos
+done
+}
+check-cmd-self-insert() { zle .self-insert && recolor-cmd }
+check-cmd-backward-delete-char() { zle .backward-delete-char && recolor-cmd }
+
+zle -N self-insert check-cmd-self-insert
+zle -N backward-delete-char check-cmd-backward-delete-char
+```
+
+```bash
+#oh-my-zsh插件
+#vim ~/.zshrc，找到这一行，后括号里面的后面添加：plugins=( 前面的一些插件名称 zsh-syntax-highlighting)
+#1. zsh-syntax-highlighting 命令高亮
+git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+
+```
+
+
 
 #### 用户头像设置
 
@@ -753,3 +893,57 @@ sudo kill -9 进程id
 ```
 
 ### 安装显卡
+
+```bash
+#安装对应内核版本的驱动
+sudo pacman -S linux510-nvidia
+sudo pacman -S bumblebee mesa xf86-video-intel
+#安装依赖
+sudo pacman -S lib32-virtualgl lib32-nvidia-utils
+resolving dependencies...
+:: There are 7 providers available for opencl-driver:
+:: Repository extra
+   1) opencl-mesa  2) opencl-nvidia  3) opencl-nvidia-390xx
+:: Repository community
+   4) intel-compute-runtime  5) mesa-git
+:: Repository archlinuxcn
+   6) opencl-nvidia-beta  7) rocm-opencl-runtime
+ 
+Enter a number (default=1): 2
+:: There are 4 providers available for lib32-opencl-driver:
+:: Repository multilib
+   1) lib32-opencl-mesa  2) lib32-opencl-nvidia  3) lib32-opencl-nvidia-390xx
+:: Repository archlinuxcn
+   4) lib32-opencl-nvidia-beta
+#开启服务
+systemctl enable bumblebeed.service
+#加入用户组
+sudo gpasswd -a $USER bumblebee
+#安装bbswich 关闭显卡
+sudo pacman -S bbswitch
+:: There are 9 providers available for bbswitch:
+:: Repository extra
+   1) linux414-bbswitch  2) linux419-bbswitch  3) linux44-bbswitch
+   4) linux49-bbswitch  5) linux510-bbswitch  6) linux54-bbswitch
+   7) linux59-bbswitch
+:: Repository community
+   8) linux54-rt-bbswitch  9) linux59-rt-bbswitch
+ 
+Enter a number (default=1): 5
+resolving dependencies...
+looking for conflicting packages...
+ 
+Packages (1) linux510-bbswitch-0.8-8
+ 
+Total Download Size:   0.03 MiB
+
+#primusrun 路径/程序名称
+#例如独显启动chrome:
+primusrun google-chrome-stable
+
+#电脑重启后，用命令行：
+glxgears  #测试集显的FPS
+optirun glxgears  #测试独显的FPS
+optirun nvidia-smi  #查看显卡信息
+```
+
