@@ -592,7 +592,7 @@ chsh -s /bin/zsh
 # 安装3den主题
 sudo vim ~/.zshrc
 #官方主题：https://github.com/ohmyzsh/ohmyzsh/wiki/External-themes
-ZSH_THEME="3den"
+ZSH_THEME="zsh-2000"
 #查看已有的shell
 cat /etc/shells
 #当前shell
@@ -724,12 +724,18 @@ zle -N self-insert check-cmd-self-insert
 zle -N backward-delete-char check-cmd-backward-delete-char
 ```
 
+> 插件
 ```bash
 #oh-my-zsh插件
 #vim ~/.zshrc，找到这一行，后括号里面的后面添加：plugins=( 前面的一些插件名称 zsh-syntax-highlighting)
 #1. zsh-syntax-highlighting 命令高亮
 git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
-
+#zsh-autosuggestions
+git clone git://github.com/zsh-users/zsh-autosuggestions ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions
+# 安装incr：再也不用先ls在粘贴文件名了
+git clone git://github.com/makeitjoe/incr.zsh $ZSH_CUSTOM/plugins/incr
+#启用所有插件
+plugins=(git zsh-syntax-highlighting zsh-autosuggestions incr sudo extract)
 ```
 
 
