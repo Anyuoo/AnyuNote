@@ -1,4 +1,4 @@
-# Manjaro
+#  Manjaro
 
 ###  初始设置
 

@@ -171,3 +171,62 @@ this.rq.get('/api/product/get,{params:{name:'abc'}}).then(res=>{
 ### 2.3 route节点不被被遍历
 
 添加在router中`show`属性
+
+
+
+### vue markdown 
+
+```bash
+npm install markdown-it-vue
+#https://blog.csdn.net/cuk5239/article/details/107697295
+
+```
+
+```html
+<template>
+  <div>
+    <markdown-it-vue class="md-body" :content="content"/>
+  </div>
+</template>
+ 
+<script>
+import MarkdownItVue from 'markdown-it-vue'
+import 'markdown-it-vue/dist/markdown-it-vue.css'
+export default {
+  components: {
+    MarkdownItVue
+  },
+  data () {
+    return {
+      content: '# your markdown content'
+    }
+  }
+}
+```
+
+### markdown编辑器
+
+```bash
+npm install mavon-editor --save
+
+```
+
+```html
+<template>
+  <div>
+    <mavon-editor></mavon-editor>
+  </div>
+</template>
+
+<script>
+import { mavonEditor } from "mavon-editor";
+import "mavon-editor/dist/css/index.css";
+export default {
+  name: "Markdown",
+  components: {
+    mavonEditor
+  }
+};
+</script>
+```
+
