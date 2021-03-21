@@ -808,9 +808,10 @@ pkill X
 #### 镜像容器自定义位置
 
 ```bash
-vi /usr/lib/systemd/system/docker.service  
+sudo vim /usr/lib/systemd/system/docker.service  
 #设置参数，追加--graph /new-path/docker
-ExecStart=/usr/bin/dockerd --graph /new-path/docker 
+ExecStart=/usr/bin/dockerd --graph /home/anyu/Projects/docker-workspace
+/docker 
 #重启守护进程
 systemctl daemon-reload 
 #查看结果
@@ -819,12 +820,13 @@ docker info
 
 
 
-#### 镜像加速
+#### 镜像加速/容器位置
 
 ```bash
 sudo tee /etc/docker/daemon.json <<-'EOF'
 {
-  "registry-mirrors": ["https://yeopv49g.mirror.aliyuncs.com"]
+  "registry-mirrors": ["https://yeopv49g.mirror.aliyuncs.com"],
+  "data-root": "/home/**/*"
 }
 EOF
 ```
@@ -952,4 +954,36 @@ glxgears  #测试集显的FPS
 optirun glxgears  #测试独显的FPS
 optirun nvidia-smi  #查看显卡信息
 ```
+
+### navicat 安装
+
+> https://gitee.com/andisolo/navicat-keygen.git 该仓库
+
+```bash
+#提取AppImage文件里的所有文件到一个文件夹
+mkdir navicat15 
+sudo mount -o loop navicat15-premium-cs.AppImage navicat15/
+cp -r navicat15 ./navicat15-patched
+sudo umount navicat15 
+rm -rf navicat15
+#使用 navicat-patcher 替换官方公钥
+ ./bin/navicat-patcher ~/Desktop/navicat15-premium-en-patched
+
+
+```
+
+```shell
+#复制字体文件到/usr/share/fonts/或者~/.local/share/fonts/中，执行fc-cache -fv（f参数：force，v参数：view）
+```
+
+### 字体安装
+
+```bash
+#去下载字体 https://www.ztxz.net.cn/weiruanziti
+pacman -Sy font-manager
+```
+
+### idea 激活
+
+> https://plugins.zhile.io IDE Eval Reset
 
