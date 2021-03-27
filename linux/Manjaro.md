@@ -155,12 +155,14 @@ pacman -Sw
 ```bash
 # 删除包，不会删除其依赖
 pacman -R
-# 删除包，及其所有没有被其它包使用的依赖
+# (推荐)删除包，及其所有没有被其它包使用的依赖
 pacman -Rs
 # 删除一个包，包括所有依赖
+yay -Rns 
 pacman -Rsc
 # 清理未安装的包 (包文件目录：/var/cache/pacman/pkg/)
 pacman -Sc
+yay -Yc
 # 清理所有缓存文件
 pacman -Sccpa
 # 显示包信息
@@ -736,6 +738,29 @@ git clone git://github.com/zsh-users/zsh-autosuggestions ~/.oh-my-zsh/custom/plu
 git clone git://github.com/makeitjoe/incr.zsh $ZSH_CUSTOM/plugins/incr
 #启用所有插件
 plugins=(git zsh-syntax-highlighting zsh-autosuggestions incr sudo extract)
+```
+
+#### 终端配置
+
+- **安装konsole配色方案**
+- **调整字体样式source code pro black 10pt**
+
+#### range终端文件浏览器
+
+```bash
+#安装ranger
+https://github.com/ranger/ranger
+#pacman -Ss ranger
+#初始化设置
+ranger --copy-config=all
+
+
+#开启图片预览
+#安装w3m
+pacman -S w3m rxvt-unicode
+#修改~/.config/ranger/rc.conf
+set preview_images true
+set preview_images_method w3m
 ```
 
 
